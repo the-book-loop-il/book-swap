@@ -1,8 +1,8 @@
-// הגדרות ההתחברות ל-Supabase
+// הגדרות ההתחברות ל-Supabase (שינינו את שם המשתנה ל-supabaseClient)
 const SUPABASE_URL = 'https://ygaknuqnbmbxofbxcyap.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlnYWtudXFuYm1ieG9mYnhjeWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNzE2OTgsImV4cCI6MjEwMTk0NzY5OH0.LwYf4Zx8tqmKRmTqjbKS9TeMRjJufji4AiSeKBpVSqU';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // תמונת ברירת מחדל
 const sampleImage = 'https://placehold.co/300x200/264653/ffffff?text=Book+Cover';
@@ -52,7 +52,7 @@ async function loadBooks() {
   const bookContainer = document.querySelector('.book-container');
   if (!bookContainer) return;
 
-  const { data: books, error } = await supabase
+  const { data: books, error } = await supabaseClient
     .from('books')
     .select('*')
     .order('created_at', { ascending: false });
@@ -145,13 +145,13 @@ document.addEventListener('DOMContentLoaded', () => {
           const fileExt = file.name.split('.').pop();
           const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
 
-          const { data: uploadData, error: uploadError } = await supabase.storage
+          const { data: uploadData, error: uploadError } = await supabaseClient.storage
             .from('book-covers')
             .upload(fileName, file);
 
           if (uploadError) throw uploadError;
 
-          const { data: urlData } = supabase.storage
+          const { data: urlData } = supabaseClient.storage
             .from('book-covers')
             .getPublicUrl(fileName);
 
@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // שמירת המודעה בטבלת books
-        const { error: insertError } = await supabase
+        const { error: insertError } = await supabaseClient
           .from('books')
           .insert([
             {
@@ -197,7 +197,7 @@ async function deleteBook(docId, event) {
   event.stopPropagation();
   if (confirm('האם את בטוחה שברצונך למחוק מודעה זו?')) {
     try {
-      const { error } = await supabase
+      const { error } = await supabaseClient
         .from('books')
         .delete()
         .eq('id', docId);
