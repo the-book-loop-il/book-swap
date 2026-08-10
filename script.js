@@ -30,29 +30,67 @@ function createBookCardHTML(title, desc, price, imageUrl, genre, contact, locati
       <div class="book-info">
         <h3>${title}</h3>
         <p class="description">מצב: ${desc}</p>
+        <p class="location">📍 ${location}</p>
+        <p class="contact">📞 ${contact}</p>
         
         <div class="card-footer">
           <span class="price">${price} ₪</span>
-          <a href="book-details.html?title=${encodeURIComponent(title)}" class="details-btn">צפה בפרטים</a>
         </div>
       </div>
     </div>
   `;
 }
 
-// טעינה והאזנה לשינויים בזמן אמת מ-Firebase
-window.addEventListener('DOMContentLoaded', () => {
-  const bookContainer = document.querySelector('.book-container');
+// ניהול פתיחה וסגירה של חלונית המודאל
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('book-modal');
+  const openBtn = document.getElementById('open-modal-btn');
+  const closeBtn = document.querySelector('.close-modal');
+  const fileInput = document.getElementById('form-image-file');
+  const fileChosen = document.getElementById('file-chosen-text');
 
-  // בדיקה שהתחברנו ל-Firebase בהצלחה
+  // פתיחת המודאל
+  if (openBtn && modal) {
+    openBtn.addEventListener('click', () => {
+      modal.style.display = 'flex';
+    });
+  }
+
+  // סגירת המודאל בריבוע ה-X
+  if (closeBtn && modal) {
+    closeBtn.addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+  }
+
+  // סגירת המודאל בלחיצה מחוץ לטופס
+  window.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.style.display = 'none';
+    }
+  });
+
+  // הצגת שם הקובץ שנבחר
+  if (fileInput && fileChosen) {
+    fileInput.addEventListener('change', function() {
+      if (this.files && this.files.length > 0) {
+        fileChosen.textContent = 'קובץ נבחר: ' + this.files[0].name;
+      } else {
+        fileChosen.textContent = 'לא נבחר קובץ (תוצג תמונת ברירת מחדל)';
+      }
+    });
+  }
+
+  // טעינה והאזנה לשינויים בזמן אמת מ-Firebase
+  const bookContainer = document.querySelector('.book-container');
   const checkFirebase = setInterval(() => {
     if (window.db && window.dbFunctions) {
       clearInterval(checkFirebase);
       
       const booksRef = window.dbFunctions.collection(window.db, 'books');
       
-      // האזנה בזמן אמת להוספה/מחיקה של ספרים
       window.dbFunctions.onSnapshot(booksRef, (snapshot) => {
+        if (!bookContainer) return;
         bookContainer.innerHTML = '';
         
         if (snapshot.empty) {
@@ -86,13 +124,12 @@ if (bookForm) {
   bookForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const title = document.getElementById('book-title').value;
-    const desc = document.getElementById('book-desc').value;
-    const price = document.getElementById('book-price').value;
-    const imageUrl = document.getElementById('book-image').value;
-    const genre = document.getElementById('book-genre').value;
-    const contact = document.getElementById('book-contact').value;
-    const location = document.getElementById('book-location').value;
+    const title = document.getElementById('form-title').value;
+    const desc = document.getElementById('form-desc').value;
+    const price = document.getElementById('form-price').value;
+    const genre = document.getElementById('form-genre').value;
+    const contact = document.getElementById('form-contact').value;
+    const location = document.getElementById('form-location').value;
 
     try {
       const booksRef = window.dbFunctions.collection(window.db, 'books');
@@ -100,7 +137,7 @@ if (bookForm) {
         title,
         desc,
         price,
-        imageUrl,
+        imageUrl: '', // כרגע ללא תמונה עד שנוסיף מנגנון העלאת תמונות מלא
         genre,
         contact,
         location,
@@ -108,8 +145,12 @@ if (bookForm) {
       });
 
       bookForm.reset();
+      const fileChosenText = document.getElementById('file-chosen-text');
+      if (fileChosenText) fileChosenText.textContent = 'לא נבחר קובץ (תוצג תמונת ברירת מחדל)';
+
       const modal = document.getElementById('book-modal');
       if (modal) modal.style.display = 'none';
+
       alert('המודעה נוספה בהצלחה בענן!');
     } catch (error) {
       console.error('שגיאה בהוספת המודעה:', error);
