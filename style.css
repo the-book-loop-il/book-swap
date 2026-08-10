@@ -340,3 +340,9 @@ body {
 .details-btn:hover {
   background-color: #2a9d8f;
 }
+.subtitle {
+  font-size: 1.1rem;
+  color: #e0e0e0;
+  margin-top: 5px;
+  font-weight: normal;
+}
