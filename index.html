@@ -26,7 +26,6 @@
       <option value="other">אחר</option>
     </select>
     
-    <!-- כפתור פתיחת הטופס -->
     <button id="open-modal-btn" class="add-book-trigger-btn">➕ פרסם מודעה</button>
   </div>
 
@@ -63,7 +62,7 @@
         <input type="text" id="form-location" placeholder="למשל: שדרות, תל אביב, חיפה..." required>
         
         <label for="form-image-file" class="file-upload-label">
-          📁 העלאת תמונת כריכה מהמחשב (תמונה אחת)
+          📁 העלאת תמונת כריכה מהמחשב/טלפון
         </label>
         <input type="file" id="form-image-file" accept="image/*" style="display: none;">
         <span id="file-chosen-text" style="font-size: 0.85em; color: #666; text-align: center; display: block; margin-top: 5px; margin-bottom: 10px;">לא נבחר קובץ (תוצג תמונת ברירת מחדל)</span>
@@ -77,29 +76,8 @@
     <!-- המודעות ייטענו לכאן באופן דינמי -->
   </div>
 
-  <!-- חיבור ל-Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBlnzi5sNZdoym8r9AabP800cn5sMLgPqA",
-      authDomain: "book-swap-67e51.firebaseapp.com",
-      projectId: "book-swap-67e51",
-      storageBucket: "book-swap-67e51.firebasestorage.app",
-      messagingSenderId: "1027399111099",
-      appId: "1:1027399111099:web:1336397fd67e19a126f49e",
-      measurementId: "G-N1N19NC49P"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    window.db = db;
-    window.dbFunctions = { collection, addDoc, onSnapshot, deleteDoc, doc };
-  </script>
-
-  <!-- חיבור הקובץ הרגיל של ה-JavaScript -->
+  <!-- טעינת ה-SDK של Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
 </body>
 </html>
