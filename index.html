@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="he" direction="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> ספרי יד שנייה </title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="header">
+    <h1>📚 ספרי יד-שנייה 📚</h1>
+  </div>
+
+  <div class="search-container">
+    <input type="text" placeholder="חפשו ספר לפי שם או סופר..." class="search-input">
+    
+    <select class="filter-select">
+      <option value="all">כל הקטגוריות</option>
+      <option value="fantasy">פנטזיה ומדע בדיוני</option>
+      <option value="history">היסטוריה ועיון</option>
+      <option value="children">ילדים ונוער</option>
+      <option value="romance">רומנטיקה</option> 
+      <option value="romantasy">רומנטזי</option>
+      <option value="other">אחר</option>
+    </select>
+    
+    <!-- הכפתור החדש שיפתח את חלונית הוספת הספר -->
+    <button id="open-modal-btn" class="add-book-trigger-btn">➕ פרסם מודעה</button>
+  </div>
+
+  <!-- חלונית מודאלית (Modal) של הטופס -->
+  <div id="book-modal" class="modal-backdrop">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <h2>פרסום מודעה חדשה</h2>
+      
+      <form id="add-book-form">
+        <label for="form-title">שם הספר:</label>
+        <input type="text" id="form-title" placeholder="למשל: הארי פוטר" required>
+        
+        <label for="form-desc">מצב הספר:</label>
+        <input type="text" id="form-desc" placeholder="למשל: כמו חדש, דפי נייר לבן" required>
+        
+        <label for="form-price">מחיר ב-₪:</label>
+        <input type="number" id="form-price" placeholder="למשל: 40" required>
+        
+        <label for="form-genre">קטגוריה / ז'אנר:</label>
+        <select id="form-genre" required>
+          <option value="fantasy">פנטזיה ומדע בדיוני</option>
+          <option value="history">היסטוריה ועיון</option>
+          <option value="children">ילדים ונוער</option>
+          <option value="romance">רומנטיקה</option> 
+          <option value="romantasy">רומנטזי</option>
+          <option value="other">אחר</option>
+        </select>
+
+        <label for="form-contact">פרטי קשר (טלפון או אינסטגרם):</label>
+        <input type="text" id="form-contact" placeholder="למשל: אורי - 050-1234567" required>
+        <label for="form-location">עיר / יישוב לאיסוף:</label>
+        <input type="text" id="form-location" placeholder="למשל: שדרות, תל אביב, חיפה..." required>
+        
+        <label for="form-image-file" class="file-upload-label">
+  📁 העלאת תמונת כריכה מהמחשב (תמונה אחת)
+</label>
+<input type="file" id="form-image-file" accept="image/*" style="display: none;">
+<span id="file-chosen-text" style="font-size: 0.85em; color: #666; text-align: center; display: block; margin-top: 5px; margin-bottom: 10px;">לא נבחר קובץ (תוצג תמונת ברירת מחדל)</span>
+
+        <button type="submit" class="submit-btn">פרסם מודעה באתר</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="book-container">
+    <!-- ספרים קבועים (Hardcoded) -->
+    
+
+  </div>
+
+  <script src="script.js"></script>
+  
+  <script>
+    // קוד קטנטן רק בשביל להראות את שם הקובץ שנבחר בטופס
+    const fileInput = document.getElementById('form-image-file');
+    const fileChosen = document.getElementById('file-chosen-text');
+    if(fileInput && fileChosen) {
+      fileInput.addEventListener('change', function() {
+        if(this.files && this.files.length > 0) {
+          fileChosen.textContent = 'קובץ נבחר: ' + this.files[0].name;
+        } else {
+          fileChosen.textContent = 'לא נבחר קובץ (תוצג תמונת ברירת מחדל)';
+        }
+      });
+    }
+  </script>
+  <!-- חיבור ל-Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBlnzi5sNZdoym8r9AabP800cn5sMLgPqA",
+    authDomain: "book-swap-67e51.firebaseapp.com",
+    projectId: "book-swap-67e51",
+    storageBucket: "book-swap-67e51.firebasestorage.app",
+    messagingSenderId: "1027399111099",
+    appId: "1:1027399111099:web:1336397fd67e19a126f49e",
+    measurementId: "G-N1N19NC49P"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // הנגשת המשתנים לשימוש בקובץ script.js
+  window.db = db;
+  window.dbFunctions = { collection, addDoc, onSnapshot, deleteDoc, doc };
+</script>
+</body>
+</html>
