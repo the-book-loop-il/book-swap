@@ -361,3 +361,23 @@ body {
 .view-details-btn:hover {
   background-color: #2a9d8f;
 }
+/* פוטר קבוע בתחתית המסך */
+.sticky-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #264653;
+  color: #ffffff;
+  text-align: center;
+  padding: 10px 15px;
+  font-size: 0.85rem;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  direction: rtl;
+}
+
+/* מניעת הסתרה של חלק מכרטיסי הספרים על ידי הפוטר */
+body {
+  padding-bottom: 50px;
+}
