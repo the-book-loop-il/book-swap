@@ -210,3 +210,51 @@ async function deleteBook(docId, event) {
     }
   }
 }
+// מנגנון חיפוש וסינון בזמן אמת (לפי שם, תיאור, קטגוריה ומיקום)
+function filterBooks() {
+  const searchInput = document.querySelector('.search-input');
+  const filterSelect = document.querySelector('.filter-select');
+  
+  if (!searchInput || !filterSelect) return;
+
+  const searchTerm = searchInput.value.trim().toLowerCase();
+  const selectedGenre = filterSelect.value;
+  const cards = document.querySelectorAll('.book-card');
+
+  cards.forEach(card => {
+    // שליפת הנתונים מתוך הכרטיס
+    const title = (card.dataset.title || card.querySelector('h3')?.textContent || '').toLowerCase();
+    const desc = (card.querySelector('.description')?.textContent || '').toLowerCase();
+    const location = (card.querySelector('.location')?.textContent || '').toLowerCase();
+    const genreTag = (card.querySelector('.genre-tag')?.textContent || '').toLowerCase();
+
+    // בדיקה אם טקסט החיפוש מופיע בשם, בתיאור או במיקום
+    const matchesSearch = title.includes(searchTerm) || 
+                          desc.includes(searchTerm) || 
+                          location.includes(searchTerm);
+
+    // בדיקה אם הקטגוריה תואמת
+    const matchesGenre = selectedGenre === 'all' || card.dataset.genre === selectedGenre;
+
+    // הצגה או הסתרה של הכרטיס
+    if (matchesSearch && matchesGenre) {
+      card.style.display = 'flex';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+// הצמדת אירועים לתיבת החיפוש ולסינון הקטגוריות
+document.addEventListener('DOMContentLoaded', () => {
+  const searchInput = document.querySelector('.search-input');
+  const filterSelect = document.querySelector('.filter-select');
+
+  if (searchInput) {
+    searchInput.addEventListener('input', filterBooks);
+  }
+
+  if (filterSelect) {
+    filterSelect.addEventListener('change', filterBooks);
+  }
+});
