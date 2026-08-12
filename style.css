@@ -381,3 +381,17 @@ body {
 body {
   padding-bottom: 50px;
 }
+/* הגבהת כפתור הפרסום והגדלת הרווח בתחתית במכשירים ניידים */
+@media (max-width: 768px) {
+  body {
+    padding-bottom: 90px !important; /* מונע הסתרה של תוכן סוף העמוד */
+  }
+
+  /* אם כפתור הפרסום צף בתחתית המסך */
+  #open-modal-btn, 
+  .add-book-btn,
+  .floating-btn {
+    bottom: 70px !important; /* מעלה את הכפתור מעל הפס התחתון */
+    z-index: 1001; /* דואג שהכפתור יהיה מעל הפס */
+  }
+}
