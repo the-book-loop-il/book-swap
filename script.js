@@ -38,7 +38,7 @@ function createBookCardHTML(title, desc, price, imageUrl, genre, contact, locati
         
         <div class="card-footer">
           <span class="price">${price} ₪</span>
-          <a href="book.html?id=${docId}" class="view-details-btn">לפרטים נוספים 📖</a>
+          <a href="book-details.html?id=${docId}" class="view-details-btn">לפרטים נוספים 📖</a>
         </div>
       </div>
     </div>
