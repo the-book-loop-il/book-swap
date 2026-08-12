@@ -346,3 +346,18 @@ body {
   margin-top: 5px;
   font-weight: normal;
 }
+.view-details-btn {
+  display: inline-block;
+  background-color: #264653;
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 0.9em;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+
+.view-details-btn:hover {
+  background-color: #2a9d8f;
+}
