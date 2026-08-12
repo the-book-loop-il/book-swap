@@ -25,6 +25,11 @@
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       flex-shrink: 0;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .details-img:hover {
+      transform: scale(1.02);
     }
     
     .details-info {
@@ -78,47 +83,39 @@
         text-align: center;
       }
     }
-    /* אפקט לחיצה על התמונה הקטנה */
-.details-img {
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-.details-img:hover {
-  transform: scale(1.02);
-}
 
-/* חלון התמונה המוגדלת */
-.image-modal {
-  display: none;
-  position: fixed;
-  z-index: 3000;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.85);
-  justify-content: center;
-  align-items: center;
-  cursor: zoom-out;
-}
+    /* חלון התמונה המוגדלת */
+    .image-modal {
+      display: none;
+      position: fixed;
+      z-index: 3000;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.85);
+      justify-content: center;
+      align-items: center;
+      cursor: zoom-out;
+    }
 
-.image-modal-content {
-  max-width: 90%;
-  max-height: 85vh;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-  object-fit: contain;
-}
+    .image-modal-content {
+      max-width: 90%;
+      max-height: 85vh;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      object-fit: contain;
+    }
 
-.close-image {
-  position: absolute;
-  top: 20px;
-  right: 30px;
-  color: #fff;
-  font-size: 40px;
-  font-weight: bold;
-  cursor: pointer;
-}
+    .close-image {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: #fff;
+      font-size: 40px;
+      font-weight: bold;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -148,6 +145,12 @@
     </div>
   </div>
 
+  <!-- חלון התמונה המוגדלת (Lightbox) -->
+  <div id="image-modal" class="image-modal" onclick="closeImageModal()">
+    <span class="close-image">&times;</span>
+    <img class="image-modal-content" id="img-full">
+  </div>
+
   <!-- טעינת SDK של Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
@@ -166,6 +169,19 @@
         'other': 'אחר'
       };
       return genres[genre] || 'כללי';
+    }
+
+    // פונקציות לפתיחה וסגירה של התמונה המוגדלת
+    function openImageModal() {
+      const currentImgSrc = document.getElementById('book-img').src;
+      if (currentImgSrc && !currentImgSrc.includes('placehold.co')) {
+        document.getElementById('img-full').src = currentImgSrc;
+        document.getElementById('image-modal').style.display = 'flex';
+      }
+    }
+
+    function closeImageModal() {
+      document.getElementById('image-modal').style.display = 'none';
     }
 
     async function loadBookDetails() {
@@ -202,28 +218,14 @@
       document.title = "ספר: " + book.title;
 
       const imageUrl = book.imageUrl || book.imageurl || sampleImage;
-      document.getElementById('book-img').src = imageUrl;
+      const bookImg = document.getElementById('book-img');
+      bookImg.src = imageUrl;
+      
+      // הוספת אירוע לחיצה לפתיחת התמונה בגודל מלא
+      bookImg.onclick = openImageModal;
     }
 
     document.addEventListener('DOMContentLoaded', loadBookDetails);
-    // פתיחת תמונה מוגדלת
-function openImageModal() {
-  const currentImgSrc = document.getElementById('book-img').src;
-  if (currentImgSrc && !currentImgSrc.includes('placehold.co')) {
-    document.getElementById('img-full').src = currentImgSrc;
-    document.getElementById('image-modal').style.display = 'flex';
-  }
-}
-
-// סגירת תמונה מוגדלת
-function closeImageModal() {
-  document.getElementById('image-modal').style.display = 'none';
-}
   </script>
-  <!-- חלון תמונה מוגדלת (Lightbox) -->
-<div id="image-modal" class="image-modal" onclick="closeImageModal()">
-  <span class="close-image">&times;</span>
-  <img class="image-modal-content" id="img-full">
-</div>
 </body>
 </html>
