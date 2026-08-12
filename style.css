@@ -387,11 +387,22 @@ body {
     padding-bottom: 90px !important; /* מונע הסתרה של תוכן סוף העמוד */
   }
 
-  /* אם כפתור הפרסום צף בתחתית המסך */
+  /* הגדרת שכבות נכונה: הטופס מופיע מעל הכל */
+.modal, 
+#book-modal {
+  z-index: 2000 !important; /* דואג שהטופס יכסה את הכפתור והפוטר */
+}
+
+/* התאמה למובייל */
+@media (max-width: 768px) {
+  body {
+    padding-bottom: 90px !important;
+  }
+
   #open-modal-btn, 
   .add-book-btn,
   .floating-btn {
-    bottom: 70px !important; /* מעלה את הכפתור מעל הפס התחתון */
-    z-index: 1001; /* דואג שהכפתור יהיה מעל הפס */
+    bottom: 70px !important;
+    z-index: 999 !important; /* נמוך מה-modal כדי שלא יעלה על הטופס */
   }
 }
