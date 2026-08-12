@@ -206,6 +206,19 @@
     }
 
     document.addEventListener('DOMContentLoaded', loadBookDetails);
+    // פתיחת תמונה מוגדלת
+function openImageModal() {
+  const currentImgSrc = document.getElementById('book-img').src;
+  if (currentImgSrc && !currentImgSrc.includes('placehold.co')) {
+    document.getElementById('img-full').src = currentImgSrc;
+    document.getElementById('image-modal').style.display = 'flex';
+  }
+}
+
+// סגירת תמונה מוגדלת
+function closeImageModal() {
+  document.getElementById('image-modal').style.display = 'none';
+}
   </script>
   <!-- חלון תמונה מוגדלת (Lightbox) -->
 <div id="image-modal" class="image-modal" onclick="closeImageModal()">
