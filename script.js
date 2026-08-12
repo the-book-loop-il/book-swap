@@ -156,19 +156,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // שמירה בטבלת books
-        const { error: insertError } = await supabaseClient
-          .from('books')
-          .insert([
-            {
-              title,
-              desc,
-              price,
-              genre,
-              contact,
-              location,
-              imageurl
-            }
-          ]);
+        // שמירה בטבלת books
+      const { error: insertError } = await supabaseClient
+      .from('books')
+      .insert([
+        {
+          title,
+          desc,
+          price,
+          genre,
+          contact,
+          location,
+          imageUrl: imageurl
+         }
+        ]);
 
         if (insertError) {
           console.error("Database Error Details:", insertError);
