@@ -38,12 +38,12 @@ function createBookCardHTML(title, desc, price, imageUrl, genre, contact, locati
         
         <div class="card-footer">
           <span class="price">${price} ₪</span>
+          <a href="book.html?id=${docId}" class="view-details-btn">לפרטים נוספים 📖</a>
         </div>
       </div>
     </div>
   `;
 }
-
 async function loadBooks() {
   const bookContainer = document.querySelector('.book-container');
   if (!bookContainer) return;
