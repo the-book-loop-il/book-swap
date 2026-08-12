@@ -4,29 +4,7 @@ body {
   margin: 0;
   padding: 0;
   background-color: #f8fafc;
-  
-  /* תמונת הרקע */
-  background-image: url('gojo.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  
-  /* מרווח בתחתית למובייל והפוטר */
   padding-bottom: 90px;
-  position: relative;
-}
-
-/* שכבת הכהיה/טשטוש קלה מעל הרקע כדי שהטקסטים והכרטיסים יהיו קריאים */
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(248, 250, 252, 0.85); /* רמת שקיפות של הרקע */
-  z-index: -1;
 }
 
 .header {
