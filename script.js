@@ -1,4 +1,4 @@
-// הגדרות ההתחברות ל-Supabase (שינינו את שם המשתנה ל-supabaseClient)
+// הגדרות התחברות ל-Supabase
 const SUPABASE_URL = 'https://ygaknuqnbmbxofbxcyap.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlnYWtudXFuYm1ieG9mYnhjeWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNzE2OTgsImV4cCI6MjEwMTk0NzY5OH0.LwYf4Zx8tqmKRmTqjbKS9TeMRjJufji4AiSeKBpVSqU';
 
@@ -74,7 +74,7 @@ async function loadBooks() {
       book.title,
       book.desc,
       book.price,
-      book.imageUrl,
+      book.imageurl || book.imageUrl,
       book.genre,
       book.contact,
       book.location,
@@ -136,10 +136,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const contact = document.getElementById('form-contact').value;
       const location = document.getElementById('form-location').value;
 
-      let imageUrl = '';
+      let imageurl = '';
 
       try {
-        // העלאת תמונה ל-Storage
+        // העלאת תמונה ל-Storage במידה ונבחרה
         if (fileInput && fileInput.files.length > 0) {
           const file = fileInput.files[0];
           const fileExt = file.name.split('.').pop();
@@ -155,10 +155,10 @@ document.addEventListener('DOMContentLoaded', () => {
             .from('book-covers')
             .getPublicUrl(fileName);
 
-          imageUrl = urlData.publicUrl;
+          imageurl = urlData.publicUrl;
         }
 
-        // שמירת המודעה בטבלת books
+        // שמירת המודעה בטבלת books (שימוש ב-imageurl באותיות קטנות)
         const { error: insertError } = await supabaseClient
           .from('books')
           .insert([
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
               genre,
               contact,
               location,
-              imageUrl
+              imageurl
             }
           ]);
 
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadBooks();
       } catch (error) {
         console.error('שגיאה בהוספת המודעה:', error);
-        alert('ייתה שגיאה בהוספת המודעה, נסי שוב.');
+        alert('הייתה שגיאה בהוספת המודעה. בדקי שהזנת את כל הפרטים.');
       } finally {
         submitBtn.textContent = originalBtnText;
         submitBtn.disabled = false;
