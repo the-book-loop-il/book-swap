@@ -22,7 +22,7 @@ function createBookCardHTML(title, desc, price, imageUrl, genre, contact, locati
   const finalImage = imageUrl || sampleImage;
 
   return `
-    <div class="book-card" data-title="${title}">
+    <div class="book-card" data-title="${title}" data-genre="${genre}">
       <button class="delete-btn" title="מחק מודעה" onclick="deleteBook('${docId}', event)">🗑️</button>
       
       <div class="card-img-container">
@@ -246,11 +246,46 @@ function filterBooks() {
 }
 
 // הצמדת אירועים לתיבת החיפוש ולסינון הקטגוריות
+// מנגנון חיפוש וסינון בזמן אמת
+function filterBooks() {
+  const searchInput = document.querySelector('.search-input');
+  const filterSelect = document.querySelector('.filter-select');
+  
+  if (!searchInput || !filterSelect) return;
+
+  const searchTerm = searchInput.value.trim().toLowerCase();
+  const selectedGenre = filterSelect.value;
+  const cards = document.querySelectorAll('.book-card');
+
+  cards.forEach(card => {
+    const title = (card.getAttribute('data-title') || '').toLowerCase();
+    const desc = (card.querySelector('.description')?.textContent || '').toLowerCase();
+    const location = (card.querySelector('.location')?.textContent || '').toLowerCase();
+    const cardGenre = card.getAttribute('data-genre') || '';
+
+    // חיפוש טקסט בשם הספר, בתיאור ובמיקום
+    const matchesSearch = title.includes(searchTerm) || 
+                          desc.includes(searchTerm) || 
+                          location.includes(searchTerm);
+
+    // סינון לפי קטגוריה
+    const matchesGenre = selectedGenre === 'all' || cardGenre === selectedGenre;
+
+    if (matchesSearch && matchesGenre) {
+      card.style.display = 'flex';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+// הצמדת אירועי חיפוש ושיוך
 document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.querySelector('.search-input');
   const filterSelect = document.querySelector('.filter-select');
 
   if (searchInput) {
+    searchInput.addEventListener('keyup', filterBooks);
     searchInput.addEventListener('input', filterBooks);
   }
 
