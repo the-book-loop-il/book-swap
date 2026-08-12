@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html lang="he" direction="rtl">
+<html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>פרטי הספר</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* עיצוב ייחודי לעמוד הפרטים */
     .details-page-container {
       max-width: 800px;
       margin: 50px auto;
@@ -19,14 +18,13 @@
       align-items: flex-start;
     }
     
-    /* עיצוב נקי לתמונה יחידה */
     .details-img {
       width: 250px;
       height: 350px;
       object-fit: cover;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      flex-shrink: 0; /* מונע מהתמונה להתכווץ */
+      flex-shrink: 0;
     }
     
     .details-info {
@@ -93,7 +91,6 @@
   </div>
 
   <div class="details-page-container">
-    <!-- 🛑 תמונה אחת בלבד - ללא כפילויות וללא גלריה -->
     <img id="book-img" src="" alt="כריכת הספר" class="details-img">
     
     <div class="details-info">
@@ -110,7 +107,14 @@
     </div>
   </div>
 
+  <!-- טעינת SDK של Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
+    const SUPABASE_URL = 'https://ygaknuqnbmbxofbxcyap.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlnYWtudXFuYm1ieG9mYnhjeWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNzE2OTgsImV4cCI6MjEwMTk0NzY5OH0.LwYf4Zx8tqmKRmTqjbKS9TeMRjJufji4AiSeKBpVSqU';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const sampleImage = 'https://placehold.co/300x200/264653/ffffff?text=Book+Cover';
+
     function getGenreLabel(genre) {
       const genres = {
         'fantasy': 'פנטזיה ומד"ב',
@@ -123,29 +127,44 @@
       return genres[genre] || 'כללי';
     }
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const bookTitleFromUrl = urlParams.get('title');
+    async function loadBookDetails() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const bookId = urlParams.get('id');
 
-    if (bookTitleFromUrl) {
-      const savedBooks = JSON.parse(localStorage.getItem('myBooks')) || [];
-      
-      const foundBook = savedBooks.find(function(book) {
-        return book.title === bookTitleFromUrl;
-      });
-
-      if (foundBook) {
-        document.getElementById('book-title').textContent = foundBook.title;
-        document.getElementById('book-desc').textContent = "מצב: " + foundBook.desc;
-        document.getElementById('book-price').textContent = foundBook.price + " ₪";
-        document.getElementById('book-genre').textContent = getGenreLabel(foundBook.genre);
-        document.getElementById('book-location').textContent = foundBook.location || 'לא צוין'; 
-        document.getElementById('book-contact').textContent = foundBook.contact || 'לא הוזנו פרטי קשר';
-        document.title = "ספר: " + foundBook.title;
-
-        // טעינת התמונה האחת והיחידה
-        document.getElementById('book-img').src = foundBook.imageUrl || (foundBook.images ? foundBook.images[0] : '');
+      if (!bookId) {
+        alert('לא נבחר ספר לצפייה');
+        window.location.href = 'index.html';
+        return;
       }
+
+      // שליפה ישירה מ-Supabase לפי id
+      const { data: book, error } = await supabaseClient
+        .from('books')
+        .select('*')
+        .eq('id', bookId)
+        .single();
+
+      if (error || !book) {
+        console.error('Error fetching book:', error);
+        alert('הספר לא נמצא.');
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // הזנת הנתונים לאלמנטים בעמוד
+      document.getElementById('book-title').textContent = book.title;
+      document.getElementById('book-desc').textContent = "מצב הספר: " + book.desc;
+      document.getElementById('book-price').textContent = book.price + " ₪";
+      document.getElementById('book-genre').textContent = getGenreLabel(book.genre);
+      document.getElementById('book-location').textContent = book.location || 'לא צוין';
+      document.getElementById('book-contact').textContent = book.contact || 'לא הוזנו פרטי קשר';
+      document.title = "ספר: " + book.title;
+
+      const imageUrl = book.imageUrl || book.imageurl || sampleImage;
+      document.getElementById('book-img').src = imageUrl;
     }
+
+    document.addEventListener('DOMContentLoaded', loadBookDetails);
   </script>
 </body>
 </html>
