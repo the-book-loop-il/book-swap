@@ -4,10 +4,8 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// תמונת ברירת מחדל
 const sampleImage = 'https://placehold.co/300x200/264653/ffffff?text=Book+Cover';
 
-// תרגום ז'אנר לעברית
 function getGenreLabel(genre) {
   const genres = {
     'fantasy': 'פנטזיה ומד"ב',
@@ -20,7 +18,6 @@ function getGenreLabel(genre) {
   return genres[genre] || 'כללי';
 }
 
-// יצירת כרטיס HTML
 function createBookCardHTML(title, desc, price, imageUrl, genre, contact, location, docId) {
   const finalImage = imageUrl || sampleImage;
 
@@ -47,7 +44,6 @@ function createBookCardHTML(title, desc, price, imageUrl, genre, contact, locati
   `;
 }
 
-// טעינת מודעות מ-Supabase
 async function loadBooks() {
   const bookContainer = document.querySelector('.book-container');
   if (!bookContainer) return;
@@ -84,7 +80,6 @@ async function loadBooks() {
   });
 }
 
-// ניהול אירועים לאחר טעינת ה-DOM
 document.addEventListener('DOMContentLoaded', () => {
   loadBooks();
 
@@ -95,7 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const fileChosen = document.getElementById('file-chosen-text');
   const bookForm = document.getElementById('add-book-form');
 
-  // פתיחה וסגירה של המודאל
   if (openBtn && modal) {
     openBtn.addEventListener('click', () => modal.style.display = 'flex');
   }
@@ -108,7 +102,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target === modal) modal.style.display = 'none';
   });
 
-  // הצגת שם קובץ שנבחר
   if (fileInput && fileChosen) {
     fileInput.addEventListener('change', function() {
       if (this.files && this.files.length > 0) {
@@ -119,7 +112,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // טיפול בטופס הוספת ספר
   if (bookForm) {
     bookForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -139,17 +131,22 @@ document.addEventListener('DOMContentLoaded', () => {
       let imageurl = '';
 
       try {
-        // העלאת תמונה ל-Storage במידה ונבחרה
-        if (fileInput && fileInput.files.length > 0) {
+        // העלאת תמונה - רק אם נבחר קובץ תקין
+        if (fileInput && fileInput.files && fileInput.files.length > 0) {
           const file = fileInput.files[0];
+          
+          // בדיקת סיומת הקובץ
           const fileExt = file.name.split('.').pop();
           const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
 
           const { data: uploadData, error: uploadError } = await supabaseClient.storage
             .from('book-covers')
-            .upload(fileName, file);
+            .upload(fileName, file, { cacheControl: '3600', upsert: true });
 
-          if (uploadError) throw uploadError;
+          if (uploadError) {
+            console.error("Storage Error Details:", uploadError);
+            throw new Error(`שגיאה בהעלאת תמונה: ${uploadError.message}`);
+          }
 
           const { data: urlData } = supabaseClient.storage
             .from('book-covers')
@@ -158,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
           imageurl = urlData.publicUrl;
         }
 
-        // שמירת המודעה בטבלת books (שימוש ב-imageurl באותיות קטנות)
+        // שמירה בטבלת books
         const { error: insertError } = await supabaseClient
           .from('books')
           .insert([
@@ -173,7 +170,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           ]);
 
-        if (insertError) throw insertError;
+        if (insertError) {
+          console.error("Database Error Details:", insertError);
+          throw new Error(`שגיאה בשמירת נתונים: ${insertError.message}`);
+        }
 
         bookForm.reset();
         if (fileChosen) fileChosen.textContent = 'לא נבחר קובץ (תוצג תמונת ברירת מחדל)';
@@ -182,8 +182,8 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('המודעה נוספה בהצלחה!');
         loadBooks();
       } catch (error) {
-        console.error('שגיאה בהוספת המודעה:', error);
-        alert('הייתה שגיאה בהוספת המודעה. בדקי שהזנת את כל הפרטים.');
+        console.error('שגיאה מלאה:', error);
+        alert(error.message || 'הייתה שגיאה בהוספת המודעה.');
       } finally {
         submitBtn.textContent = originalBtnText;
         submitBtn.disabled = false;
@@ -192,7 +192,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// פונקציית מחיקה
 async function deleteBook(docId, event) {
   event.stopPropagation();
   if (confirm('האם את בטוחה שברצונך למחוק מודעה זו?')) {
