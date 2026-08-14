@@ -8,11 +8,15 @@ const sampleImage = 'https://placehold.co/300x200/264653/ffffff?text=Book+Cover'
 
 function getGenreLabel(genre) {
   const genres = {
-    'fantasy': 'פנטזיה ומד"ב',
-    'history': 'היסטוריה ועיון',
-    'children': 'ילדים ונוער',
+    'sci-fi-fantasy': 'מדע בדיוני ופנטזיה',
     'romance': 'רומנטיקה',
     'romantasy': 'רומנטזי',
+    'history': 'היסטוריה',
+    'non-fiction': 'עיון',
+    'novel': 'רומן',
+    'horror': 'אימה',
+    'thriller': 'מתח',
+    'children': 'ילדים ונוער',
     'other': 'אחר'
   };
   return genres[genre] || 'כללי';
