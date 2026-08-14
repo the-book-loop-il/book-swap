@@ -17,14 +17,18 @@
     <input type="text" placeholder="חפשו  לפי שם הספר או עיר/אזור..." class="search-input">
     
     <select class="filter-select">
-      <option value="all">כל הקטגוריות</option>
-      <option value="fantasy">פנטזיה ומדע בדיוני</option>
-      <option value="history">היסטוריה ועיון</option>
-      <option value="children">ילדים ונוער</option>
-      <option value="romance">רומנטיקה</option> 
-      <option value="romantasy">רומנטזי</option>
-      <option value="other">אחר</option>
-    </select>
+  <option value="all">כל הקטגוריות</option>
+  <option value="sci-fi-fantasy">מדע בדיוני ופנטזיה</option>
+  <option value="romance">רומנטיקה</option>
+  <option value="romantasy">רומנטזי</option>
+  <option value="history">היסטוריה</option>
+  <option value="non-fiction">עיון</option>
+  <option value="novel">רומן</option>
+  <option value="horror">אימה</option>
+  <option value="thriller">מתח</option>
+  <option value="children">ילדים ונוער</option>
+  <option value="other">אחר</option>
+</select>
     
     <button id="open-modal-btn" class="add-book-trigger-btn">➕ פרסם מודעה</button>
   </div>
@@ -46,12 +50,17 @@
         <input type="number" id="form-price" placeholder="למשל: 40" required>
         
         <label for="form-genre">קטגוריה / ז'אנר:</label>
-        <select id="form-genre" required>
-          <option value="fantasy">פנטזיה ומדע בדיוני</option>
-          <option value="history">היסטוריה ועיון</option>
-          <option value="children">ילדים ונוער</option>
-          <option value="romance">רומנטיקה</option> 
+        <select id="book-genre" required>
+          <option value="" disabled selected>בחרו קטגוריה</option>
+          <option value="sci-fi-fantasy">מדע בדיוני ופנטזיה</option>
+          <option value="romance">רומנטיקה</option>
           <option value="romantasy">רומנטזי</option>
+          <option value="history">היסטוריה</option>
+          <option value="non-fiction">עיון</option>
+          <option value="novel">רומן</option>
+          <option value="horror">אימה</option>
+          <option value="thriller">מתח</option>
+          <option value="children">ילדים ונוער</option>
           <option value="other">אחר</option>
         </select>
 
