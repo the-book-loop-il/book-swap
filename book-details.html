@@ -161,15 +161,19 @@
 
     function getGenreLabel(genre) {
       const genres = {
-        'fantasy': 'פנטזיה ומד"ב',
-        'history': 'היסטוריה ועיון',
-        'children': 'ילדים ונוער',
+        'sci-fi-fantasy': 'מדע בדיוני ופנטזיה',
         'romance': 'רומנטיקה',
-        'romantasy': 'רומנטזי', 
+        'romantasy': 'רומנטזי',
+        'history': 'היסטוריה',
+        'non-fiction': 'עיון',
+        'novel': 'רומן',
+        'horror': 'אימה',
+        'thriller': 'מתח',
+        'children': 'ילדים ונוער',
         'other': 'אחר'
-      };
-      return genres[genre] || 'כללי';
-    }
+        };
+  return genres[genre] || 'כללי';
+}
 
     // פונקציות לפתיחה וסגירה של התמונה המוגדלת
     function openImageModal() {
