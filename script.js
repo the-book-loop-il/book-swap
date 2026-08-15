@@ -22,7 +22,7 @@ function getGenreLabel(genre) {
   return genres[genre] || 'כללי';
 }
 
-// פונקציית עזר לכיווץ תמונה לפני העלאה לשרת
+// כיווץ תמונות בלייב בדפדפן
 function compressImage(file, maxWidth = 1000, maxHeight = 1000, quality = 0.8) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -107,7 +107,7 @@ async function loadBooks() {
 
   const { data: books, error } = await supabaseClient
     .from('books')
-    .select('id, title, desc, price, genre, location, imageUrl, imageurl, created_at')
+    .select('*')
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (fileInput && fileInput.files && fileInput.files.length > 0) {
           const originalFile = fileInput.files[0];
           
-          // כיווץ התמונה בלייב לפני ההעלאה
+          // כיווץ התמונה
           const compressedFile = await compressImage(originalFile);
           
           const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.webp`;
