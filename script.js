@@ -27,7 +27,7 @@ function createBookCardHTML(title, desc, price, imageUrl, genre, contact, locati
 
   return `
     <div class="book-card" data-title="${title}" data-genre="${genre}">
-      <button class="delete-btn" title="מחק מודעה" onclick="deleteBook('${docId}', event)">🗑️</button>
+      <button class="delete-btn" title="מחק מודעה" onclick="deleteBook('${docId}', '${finalImage}')">🗑️</button>
       
       <div class="card-img-container">
         <span class="genre-tag">${getGenreLabel(genre)}</span>
@@ -48,6 +48,7 @@ function createBookCardHTML(title, desc, price, imageUrl, genre, contact, locati
     </div>
   `;
 }
+
 async function loadBooks() {
   const bookContainer = document.querySelector('.book-container');
   if (!bookContainer) return;
@@ -81,6 +82,75 @@ async function loadBooks() {
       book.id
     );
     bookContainer.insertAdjacentHTML('beforeend', bookHTML);
+  });
+}
+
+async function deleteBook(bookId, imageUrl) {
+  const confirmDelete = confirm('האם את בטוחה שברצונך למחוק מודעה זו?');
+  if (!confirmDelete) return;
+
+  try {
+    // 1. מחיקת תמונת ה-Storage במידה והיא לא תמונת ברירת המחדל
+    if (imageUrl && !imageUrl.includes('placehold.co')) {
+      const fileName = imageUrl.split('/').pop();
+      
+      if (fileName) {
+        const { error: storageError } = await supabaseClient
+          .storage
+          .from('book-covers')
+          .remove([fileName]);
+
+        if (storageError) {
+          console.warn('שגיאה במחיקת התמונה מ-Storage:', storageError.message);
+        }
+      }
+    }
+
+    // 2. מחיקת שורת הספר מטבלת הנתונים
+    const { error: dbError } = await supabaseClient
+      .from('books')
+      .delete()
+      .eq('id', bookId);
+
+    if (dbError) throw dbError;
+
+    alert('המודעה נמחקה בהצלחה!');
+    loadBooks();
+
+  } catch (error) {
+    console.error('שגיאה במחיקת המודעה:', error.message);
+    alert('אירעה שגיאה בעת המחיקה: ' + error.message);
+  }
+}
+
+// מנגנון חיפוש וסינון בזמן אמת
+function filterBooks() {
+  const searchInput = document.querySelector('.search-input');
+  const filterSelect = document.querySelector('.filter-select');
+  
+  if (!searchInput || !filterSelect) return;
+
+  const searchTerm = searchInput.value.trim().toLowerCase();
+  const selectedGenre = filterSelect.value;
+  const cards = document.querySelectorAll('.book-card');
+
+  cards.forEach(card => {
+    const title = (card.getAttribute('data-title') || '').toLowerCase();
+    const desc = (card.querySelector('.description')?.textContent || '').toLowerCase();
+    const location = (card.querySelector('.location')?.textContent || '').toLowerCase();
+    const cardGenre = card.getAttribute('data-genre') || '';
+
+    const matchesSearch = title.includes(searchTerm) || 
+                          desc.includes(searchTerm) || 
+                          location.includes(searchTerm);
+
+    const matchesGenre = selectedGenre === 'all' || cardGenre === selectedGenre;
+
+    if (matchesSearch && matchesGenre) {
+      card.style.display = 'flex';
+    } else {
+      card.style.display = 'none';
+    }
   });
 }
 
@@ -135,11 +205,8 @@ document.addEventListener('DOMContentLoaded', () => {
       let imageurl = '';
 
       try {
-        // העלאת תמונה - רק אם נבחר קובץ תקין
         if (fileInput && fileInput.files && fileInput.files.length > 0) {
           const file = fileInput.files[0];
-          
-          // בדיקת סיומת הקובץ
           const fileExt = file.name.split('.').pop();
           const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
 
@@ -159,21 +226,19 @@ document.addEventListener('DOMContentLoaded', () => {
           imageurl = urlData.publicUrl;
         }
 
-        // שמירה בטבלת books
-        // שמירה בטבלת books
-      const { error: insertError } = await supabaseClient
-      .from('books')
-      .insert([
-        {
-          title,
-          desc,
-          price,
-          genre,
-          contact,
-          location,
-          imageUrl: imageurl
-         }
-        ]);
+        const { error: insertError } = await supabaseClient
+          .from('books')
+          .insert([
+            {
+              title,
+              desc,
+              price,
+              genre,
+              contact,
+              location,
+              imageUrl: imageurl
+            }
+          ]);
 
         if (insertError) {
           console.error("Database Error Details:", insertError);
@@ -195,123 +260,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-});
 
-async function deleteBook(bookId, imageUrl) {
-  const confirmDelete = confirm('האם את בטוחה שברצונך למחוק מודעה זו?');
-  if (!confirmDelete) return;
-
-  try {
-    // 1. מחיקת תמונת ה-Storage במידה וקיימת
-    if (imageUrl) {
-      // חילוץ שם הקובץ מתוך ה-URL השלם
-      const fileName = imageUrl.split('/').pop();
-      
-      if (fileName) {
-        const { error: storageError } = await supabaseClient
-          .storage
-          .from('book-covers') // ודאי שזהו השם המדויק של ה-Bucket שלך
-          .remove([fileName]);
-
-        if (storageError) {
-          console.warn('שגיאה במחיקת התמונה מ-Storage:', storageError.message);
-        }
-      }
-    }
-
-    // 2. מחיקת שורת הספר מטבלת הנתונים
-    const { error: dbError } = await supabaseClient
-      .from('books')
-      .delete()
-      .eq('id', bookId);
-
-    if (dbError) throw dbError;
-
-    alert('המודעה והתמונה נמחקו בהצלחה!');
-    
-    // רענון הרשימה באתר
-    if (typeof fetchBooks === 'function') {
-      fetchBooks();
-    } else {
-      location.reload();
-    }
-
-  } catch (error) {
-    console.error('שגיאה במחיקת המודעה:', error.message);
-    alert('אירעה שגיאה בעת המחיקה: ' + error.message);
-  }
-}
-// מנגנון חיפוש וסינון בזמן אמת (לפי שם, תיאור, קטגוריה ומיקום)
-function filterBooks() {
-  const searchInput = document.querySelector('.search-input');
-  const filterSelect = document.querySelector('.filter-select');
-  
-  if (!searchInput || !filterSelect) return;
-
-  const searchTerm = searchInput.value.trim().toLowerCase();
-  const selectedGenre = filterSelect.value;
-  const cards = document.querySelectorAll('.book-card');
-
-  cards.forEach(card => {
-    // שליפת הנתונים מתוך הכרטיס
-    const title = (card.dataset.title || card.querySelector('h3')?.textContent || '').toLowerCase();
-    const desc = (card.querySelector('.description')?.textContent || '').toLowerCase();
-    const location = (card.querySelector('.location')?.textContent || '').toLowerCase();
-    const genreTag = (card.querySelector('.genre-tag')?.textContent || '').toLowerCase();
-
-    // בדיקה אם טקסט החיפוש מופיע בשם, בתיאור או במיקום
-    const matchesSearch = title.includes(searchTerm) || 
-                          desc.includes(searchTerm) || 
-                          location.includes(searchTerm);
-
-    // בדיקה אם הקטגוריה תואמת
-    const matchesGenre = selectedGenre === 'all' || card.dataset.genre === selectedGenre;
-
-    // הצגה או הסתרה של הכרטיס
-    if (matchesSearch && matchesGenre) {
-      card.style.display = 'flex';
-    } else {
-      card.style.display = 'none';
-    }
-  });
-}
-
-// הצמדת אירועים לתיבת החיפוש ולסינון הקטגוריות
-// מנגנון חיפוש וסינון בזמן אמת
-function filterBooks() {
-  const searchInput = document.querySelector('.search-input');
-  const filterSelect = document.querySelector('.filter-select');
-  
-  if (!searchInput || !filterSelect) return;
-
-  const searchTerm = searchInput.value.trim().toLowerCase();
-  const selectedGenre = filterSelect.value;
-  const cards = document.querySelectorAll('.book-card');
-
-  cards.forEach(card => {
-    const title = (card.getAttribute('data-title') || '').toLowerCase();
-    const desc = (card.querySelector('.description')?.textContent || '').toLowerCase();
-    const location = (card.querySelector('.location')?.textContent || '').toLowerCase();
-    const cardGenre = card.getAttribute('data-genre') || '';
-
-    // חיפוש טקסט בשם הספר, בתיאור ובמיקום
-    const matchesSearch = title.includes(searchTerm) || 
-                          desc.includes(searchTerm) || 
-                          location.includes(searchTerm);
-
-    // סינון לפי קטגוריה
-    const matchesGenre = selectedGenre === 'all' || cardGenre === selectedGenre;
-
-    if (matchesSearch && matchesGenre) {
-      card.style.display = 'flex';
-    } else {
-      card.style.display = 'none';
-    }
-  });
-}
-
-// הצמדת אירועי חיפוש ושיוך
-document.addEventListener('DOMContentLoaded', () => {
+  // הצמדת אירועי חיפוש וסינון
   const searchInput = document.querySelector('.search-input');
   const filterSelect = document.querySelector('.filter-select');
 
