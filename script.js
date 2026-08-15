@@ -38,7 +38,6 @@ function createBookCardHTML(title, desc, price, imageUrl, genre, contact, locati
         <h3>${title}</h3>
         <p class="description">מצב: ${desc}</p>
         <p class="location">📍 ${location}</p>
-        <p class="contact">📞 ${contact}</p>
         
         <div class="card-footer">
           <span class="price">${price} ₪</span>
