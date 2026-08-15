@@ -186,16 +186,19 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
 
       const submitBtn = bookForm.querySelector('.submit-btn');
-      const originalBtnText = submitBtn.textContent;
-      submitBtn.textContent = 'מעלה תמונה ומפרסם...';
-      submitBtn.disabled = true;
+      const originalBtnText = submitBtn ? submitBtn.textContent : '';
+      if (submitBtn) {
+        submitBtn.textContent = 'מעלה תמונה ומפרסם...';
+        submitBtn.disabled = true;
+      }
 
-      const title = document.getElementById('form-title').value;
-      const desc = document.getElementById('form-desc').value;
-      const price = document.getElementById('form-price').value;
-      const genre = document.getElementById('form-genre').value;
-      const contact = document.getElementById('form-contact').value;
-      const location = document.getElementById('form-location').value;
+      // קריאת השדות בצורה מוגנת מפני null
+      const title = document.getElementById('form-title')?.value || '';
+      const desc = document.getElementById('form-desc')?.value || '';
+      const price = document.getElementById('form-price')?.value || '0';
+      const genre = document.getElementById('form-genre')?.value || 'other';
+      const contact = document.getElementById('form-contact')?.value || '';
+      const location = document.getElementById('form-location')?.value || '';
 
       let imageurl = '';
 
@@ -231,7 +234,8 @@ document.addEventListener('DOMContentLoaded', () => {
               genre,
               contact,
               location,
-              imageUrl: imageurl
+              imageUrl: imageurl,
+              imageurl: imageurl
             }
           ]);
 
@@ -250,8 +254,10 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('שגיאה מלאה:', error);
         alert(error.message || 'הייתה שגיאה בהוספת המודעה.');
       } finally {
-        submitBtn.textContent = originalBtnText;
-        submitBtn.disabled = false;
+        if (submitBtn) {
+          submitBtn.textContent = originalBtnText;
+          submitBtn.disabled = false;
+        }
       }
     });
   }
