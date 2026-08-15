@@ -197,21 +197,48 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-async function deleteBook(docId, event) {
-  event.stopPropagation();
-  if (confirm('האם את בטוחה שברצונך למחוק מודעה זו?')) {
-    try {
-      const { error } = await supabaseClient
-        .from('books')
-        .delete()
-        .eq('id', docId);
+async function deleteBook(bookId, imageUrl) {
+  const confirmDelete = confirm('האם את בטוחה שברצונך למחוק מודעה זו?');
+  if (!confirmDelete) return;
 
-      if (error) throw error;
-      loadBooks();
-    } catch (error) {
-      console.error('שגיאה במחיקה:', error);
-      alert('לא ניתן היה למחוק את המודעה.');
+  try {
+    // 1. מחיקת תמונת ה-Storage במידה וקיימת
+    if (imageUrl) {
+      // חילוץ שם הקובץ מתוך ה-URL השלם
+      const fileName = imageUrl.split('/').pop();
+      
+      if (fileName) {
+        const { error: storageError } = await supabaseClient
+          .storage
+          .from('book-covers') // ודאי שזהו השם המדויק של ה-Bucket שלך
+          .remove([fileName]);
+
+        if (storageError) {
+          console.warn('שגיאה במחיקת התמונה מ-Storage:', storageError.message);
+        }
+      }
     }
+
+    // 2. מחיקת שורת הספר מטבלת הנתונים
+    const { error: dbError } = await supabaseClient
+      .from('books')
+      .delete()
+      .eq('id', bookId);
+
+    if (dbError) throw dbError;
+
+    alert('המודעה והתמונה נמחקו בהצלחה!');
+    
+    // רענון הרשימה באתר
+    if (typeof fetchBooks === 'function') {
+      fetchBooks();
+    } else {
+      location.reload();
+    }
+
+  } catch (error) {
+    console.error('שגיאה במחיקת המודעה:', error.message);
+    alert('אירעה שגיאה בעת המחיקה: ' + error.message);
   }
 }
 // מנגנון חיפוש וסינון בזמן אמת (לפי שם, תיאור, קטגוריה ומיקום)
