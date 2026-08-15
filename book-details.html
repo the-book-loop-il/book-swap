@@ -145,7 +145,7 @@
     </div>
   </div>
 
-  <!-- חלון התמונה המוגדלת (Lightbox) -->
+  <!-- חלון התמונה המוגדלת -->
   <div id="image-modal" class="image-modal" onclick="closeImageModal()">
     <span class="close-image">&times;</span>
     <img class="image-modal-content" id="img-full">
@@ -171,11 +171,10 @@
         'thriller': 'מתח',
         'children': 'ילדים ונוער',
         'other': 'אחר'
-        };
-  return genres[genre] || 'כללי';
-}
+      };
+      return genres[genre] || 'כללי';
+    }
 
-    // פונקציות לפתיחה וסגירה של התמונה המוגדלת
     function openImageModal() {
       const currentImgSrc = document.getElementById('book-img').src;
       if (currentImgSrc && !currentImgSrc.includes('placehold.co')) {
@@ -198,38 +197,34 @@
         return;
       }
 
-     // שליפת הספר לפי ID מ-Supabase
+      // שליפה ישירה מ-Supabase לפי id
       const { data: book, error } = await supabaseClient
         .from('books')
         .select('*')
         .eq('id', bookId)
-        .single();
+        .maybeSingle();
 
-    if (book) {
-      // עדכון הפרטים במסך
-      document.getElementById('detail-title').textContent = book.title;
-      document.getElementById('detail-desc').textContent = book.desc;
-      document.getElementById('detail-price').textContent = book.price + ' ₪';
-      document.getElementById('detail-location').textContent = book.location;
-  
-  // הצגת איש הקשר והטלפון רק כאן!
-  document.getElementById('detail-contact').textContent = book.contact;
-}
+      if (error || !book) {
+        console.error('Error fetching book:', error);
+        alert('הספר לא נמצא.');
+        window.location.href = 'index.html';
+        return;
+      }
 
       // הזנת הנתונים לאלמנטים בעמוד
-      document.getElementById('book-title').textContent = book.title;
-      document.getElementById('book-desc').textContent = "מצב הספר: " + book.desc;
-      document.getElementById('book-price').textContent = book.price + " ₪";
+      document.getElementById('book-title').textContent = book.title || 'ללא שם';
+      document.getElementById('book-desc').textContent = "מצב הספר: " + (book.desc || 'לא צוין');
+      document.getElementById('book-price').textContent = (book.price || '0') + " ₪";
       document.getElementById('book-genre').textContent = getGenreLabel(book.genre);
       document.getElementById('book-location').textContent = book.location || 'לא צוין';
       document.getElementById('book-contact').textContent = book.contact || 'לא הוזנו פרטי קשר';
-      document.title = "ספר: " + book.title;
+      document.title = "ספר: " + (book.title || '');
 
       const imageUrl = book.imageUrl || book.imageurl || sampleImage;
       const bookImg = document.getElementById('book-img');
       bookImg.src = imageUrl;
+      bookImg.onerror = function() { this.src = sampleImage; };
       
-      // הוספת אירוע לחיצה לפתיחת התמונה בגודל מלא
       bookImg.onclick = openImageModal;
     }
 
