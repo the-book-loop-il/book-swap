@@ -22,59 +22,6 @@ function getGenreLabel(genre) {
   return genres[genre] || 'כללי';
 }
 
-// כיווץ תמונות בלייב בדפדפן
-function compressImage(file, maxWidth = 1000, maxHeight = 1000, quality = 0.8) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = (event) => {
-      const img = new Image();
-      img.src = event.target.result;
-      img.onload = () => {
-        let width = img.width;
-        let height = img.height;
-
-        if (width > height) {
-          if (width > maxWidth) {
-            height = Math.round((height * maxWidth) / width);
-            width = maxWidth;
-          }
-        } else {
-          if (height > maxHeight) {
-            width = Math.round((width * maxHeight) / height);
-            height = maxHeight;
-          }
-        }
-
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-
-        canvas.toBlob(
-          (blob) => {
-            if (blob) {
-              const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".webp", {
-                type: 'image/webp',
-                lastModified: Date.now()
-              });
-              resolve(compressedFile);
-            } else {
-              reject(new Error('כיווץ התמונה נכשל'));
-            }
-          },
-          'image/webp',
-          quality
-        );
-      };
-      img.onerror = (err) => reject(err);
-    };
-    reader.onerror = (err) => reject(err);
-  });
-}
-
 function createBookCardHTML(title, desc, price, imageUrl, genre, location, docId) {
   const finalImage = imageUrl || sampleImage;
 
@@ -240,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const submitBtn = bookForm.querySelector('.submit-btn');
       const originalBtnText = submitBtn.textContent;
-      submitBtn.textContent = 'מכווץ תמונה ומפרסם...';
+      submitBtn.textContent = 'מעלה תמונה ומפרסם...';
       submitBtn.disabled = true;
 
       const title = document.getElementById('form-title').value;
@@ -254,16 +201,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
       try {
         if (fileInput && fileInput.files && fileInput.files.length > 0) {
-          const originalFile = fileInput.files[0];
-          
-          // כיווץ התמונה
-          const compressedFile = await compressImage(originalFile);
-          
-          const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.webp`;
+          const file = fileInput.files[0];
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
 
           const { data: uploadData, error: uploadError } = await supabaseClient.storage
             .from('book-covers')
-            .upload(fileName, compressedFile, { cacheControl: '3600', upsert: true });
+            .upload(fileName, file, { cacheControl: '3600', upsert: true });
 
           if (uploadError) {
             console.error("Storage Error Details:", uploadError);
