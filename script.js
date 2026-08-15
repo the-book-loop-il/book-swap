@@ -192,7 +192,6 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.disabled = true;
       }
 
-      // קריאת השדות בצורה מוגנת מפני null
       const title = document.getElementById('form-title')?.value || '';
       const desc = document.getElementById('form-desc')?.value || '';
       const price = document.getElementById('form-price')?.value || '0';
@@ -200,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const contact = document.getElementById('form-contact')?.value || '';
       const location = document.getElementById('form-location')?.value || '';
 
-      let imageurl = '';
+      let imageUrlValue = '';
 
       try {
         if (fileInput && fileInput.files && fileInput.files.length > 0) {
@@ -221,21 +220,21 @@ document.addEventListener('DOMContentLoaded', () => {
             .from('book-covers')
             .getPublicUrl(fileName);
 
-          imageurl = urlData.publicUrl;
+          imageUrlValue = urlData.publicUrl;
         }
 
+        // שליחת האובייקט עם שם השדה המדויק ב-Supabase (imageUrl)
         const { error: insertError } = await supabaseClient
           .from('books')
           .insert([
             {
-              title,
-              desc,
-              price,
-              genre,
-              contact,
-              location,
-              imageUrl: imageurl,
-              imageurl: imageurl
+              title: title,
+              desc: desc,
+              price: price,
+              genre: genre,
+              contact: contact,
+              location: location,
+              imageUrl: imageUrlValue
             }
           ]);
 
